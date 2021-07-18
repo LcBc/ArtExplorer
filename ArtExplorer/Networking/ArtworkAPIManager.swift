@@ -52,12 +52,14 @@ class ArtworkAPIManager:ObservableObject {
                .catch { _ in Just(self.artworkResponse) }
                .sink { [weak self] in
                    self?.currentPage += 1
-                self?.artworks.append(contentsOf: $0.data!)
+                if let data = $0.data {
+                self?.artworks.append(contentsOf: data)
                 self?.isLoading = false
                    // If count of data received is less than perPage value then it is last page.
                 if $0.data?.count ?? 0 < self?.limit ?? 10 {
                        self?.artworkListFull = true
                    }
+                }
            }
        }
     
