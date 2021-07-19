@@ -75,9 +75,23 @@ class LocalAPIManager:ObservableObject {
     
     
     func get(artist: Int) ->Artist{
-        
-        
-        return Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)
+        let persistenceController = PersistenceController.shared
+        let moc  = persistenceController.container.viewContext
+
+        let artistFetch: NSFetchRequest<NSFetchRequestResult> = ArtistMO.fetchRequest()
+        let id = Int32(artist)
+        artistFetch.predicate = NSPredicate(format: "id == %i",id)
+        do {
+            let fetchedArtists = try moc.fetch(artistFetch) as! [ArtistMO]
+            
+            if let existingArtist = fetchedArtists.first {
+                return existingArtist.artist
+            }else{
+                return Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)    
+            }
+        } catch {
+            fatalError("Failed to fetch employees: \(error)")
+        }
     }
     
     
@@ -91,7 +105,6 @@ class LocalAPIManager:ObservableObject {
             if fetchedArtwork.count > 0 {
                 self.artworkListEmpty = false
                 self.artworks  = fetchedArtwork.map{$0.artwork}.sorted(by: {($0.last_seen ?? Date()) > ($1.last_seen ?? Date())})
-                
             }else{
                 self.artworkListEmpty = true
             }

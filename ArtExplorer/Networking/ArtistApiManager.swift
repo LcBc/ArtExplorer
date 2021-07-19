@@ -8,12 +8,12 @@
 import Foundation
 import Combine
 
-
 class ArtistAPIManager:ObservableObject {
     static let sharedManager = ArtistAPIManager()
     @Published var isLoading = true
     @Published var showingDetail = false
-    @Published var artist = Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)
+    @Published var artist = Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)    
+    
     private var cancellable: AnyCancellable?
     private var artistResponse = ArtistResponse(data: nil, config: nil)
 
@@ -22,6 +22,11 @@ class ArtistAPIManager:ObservableObject {
     }
     
     func fetch(artist:Int){
+        
+        if !NetworkMonitor.sharedInstance.hasConnection{
+            self.artist = LocalAPIManager.sharedManager.get(artist: artist)
+        }
+        
         guard let url = URL(string: "\(museumBasePath)/artists/\(artist)") else {
                       print("Invalid url...")
                       return
