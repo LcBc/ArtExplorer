@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ArtworkList: View {
     @ObservedObject var manager = ArtworkAPIManager.sharedManager
+    @ObservedObject var localManager = LocalAPIManager.sharedManager
     @State private var isLoading = true
     @State private var isPresenting = true
     let columns = [
@@ -19,13 +20,14 @@ struct ArtworkList: View {
         NavigationView {
         GeometryReader { geometry in
             ZStack{
+                VStack{
                 ScrollView {
                     LazyVGrid(columns:columns, spacing: 20) {
                         ForEach( manager.artworks, id: \.id) { art in
                             ArtworkPreview(artwork: art).frame(width: 120, height: 180, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
                         }
                         
-                        if manager.artworkListFull == false{
+                        if !manager.artworkListFull{
                             ProgressView()
                                 .onAppear {
                                     manager.fetchArtworks()
@@ -34,7 +36,8 @@ struct ArtworkList: View {
                     }
                     
                 }
-                
+
+                }
                 VStack {
                     Text("Loading...")
                     ActivityIndicator(isAnimating: .constant(true), style: .large)

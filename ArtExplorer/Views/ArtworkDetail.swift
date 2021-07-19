@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ArtworkDetail: View {
-    @Binding var artwork: Artwork
+    @State var artwork: Artwork
     @ObservedObject var artistManager = ArtistAPIManager.sharedManager
     var body: some View {
         ScrollView{
@@ -40,9 +40,9 @@ struct ArtworkDetail: View {
                                     .font(.title2)
                                     .foregroundColor(.secondary)
                                     .lineLimit(3)
-                                if let artist = artwork.artist_id {
+                                if let _ = artwork.artist_id {
                                     Button("Show more"){
-                                        artistManager.fetch(artist: artist)
+                                        artistManager.showingDetail = true
                                     }
                                 }
                                 
@@ -70,6 +70,9 @@ struct ArtworkDetail: View {
                         }.onAppear{
                             ArtworkAPIManager.sharedManager.showingDetail = true
                             LocalAPIManager.sharedManager.save(artwork: artwork)
+                            if let artist = artwork.artist_id {
+                                artistManager.fetch(artist: artist)
+                            }
                         }.onDisappear{
                             ArtworkAPIManager.sharedManager.showingDetail = false
                         }

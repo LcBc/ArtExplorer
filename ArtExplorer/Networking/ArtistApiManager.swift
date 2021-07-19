@@ -14,7 +14,6 @@ class ArtistAPIManager:ObservableObject {
     @Published var isLoading = true
     @Published var showingDetail = false
     @Published var artist = Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)
-    var membersListFull = false
     private var cancellable: AnyCancellable?
     private var artistResponse = ArtistResponse(data: nil, config: nil)
 
@@ -35,9 +34,12 @@ class ArtistAPIManager:ObservableObject {
                .catch { _ in
                 Just(self.artistResponse) }
                .sink { [weak self] in
-                self?.artist = $0.data ?? Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)
+                if let data = $0.data{
+                    self?.artist =  data
+                    LocalAPIManager.sharedManager.save(artist: data)
+                }
                 
-                self?.showingDetail = true
+                //self?.showingDetail = true
            }
         
         

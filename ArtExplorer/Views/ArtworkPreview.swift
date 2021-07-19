@@ -11,7 +11,7 @@ struct ArtworkPreview: View {
     @State var artwork:Artwork
     var body: some View {
         
-        NavigationLink(destination: ArtworkDetail(artwork: $artwork)) {
+        NavigationLink(destination: ArtworkDetail(artwork: artwork)) {
         VStack {
             if let url = artwork.thumbnail_Path {
             

@@ -11,16 +11,21 @@ import CoreData
 struct ContentView: View {
     @ObservedObject var artworkManager = ArtworkAPIManager.sharedManager
     @ObservedObject var localManager = LocalAPIManager.sharedManager
+    @State var isPresentingLast = false
     var body: some View {
         TabView {
             VStack{
-                ArtworkList().onAppear(){
-                    localManager.fetchArtworks()
-                }
+                ArtworkList()
+                
                 if !artworkManager.showingDetail , let art = localManager.lastArtwork {
-//                    Text("something about last seen piece")
-                    ArtworkPreview(artwork: art)
+                    Button(action:{
+                        isPresentingLast = true
+                    } , label: {
+                        ArtworkPreview(artwork: art)
+                    })
+                    
                 }
+             
             }.tabItem {
                 Image(systemName: "globe")
                 Text("Artworks")
@@ -31,6 +36,12 @@ struct ContentView: View {
                 Image(systemName: "checkmark.seal.fill")
                 Text("Favorites")
               }
+        }.sheet(isPresented: $isPresentingLast) {
+            if let art = localManager.lastArtwork {
+                ArtworkDetail(artwork: art)
+            }
+        }.onAppear(){
+            localManager.fetchArtworks()
         }
         
 

@@ -18,7 +18,7 @@ class LocalAPIManager:ObservableObject {
         }
     }
     @Published var lastArtwork:Artwork?
-    var artworkListEmpty = true
+    @Published var artworkListEmpty = true
     private init(){
     }
     
@@ -32,21 +32,52 @@ class LocalAPIManager:ObservableObject {
         artworkFetch.predicate = NSPredicate(format: "id == %i",id)
         do {
             let fetchedArtwork = try moc.fetch(artworkFetch) as! [ArtworkMO]
-            if let artworkMO = fetchedArtwork.first{
-                artworkMO.last_seen = Date()
-                try moc.save()
-            }else{
-                print("create")
-                let artworkMO = NSEntityDescription.insertNewObject(forEntityName: "Artwork", into: persistenceController.container.viewContext) as! ArtworkMO
-                artworkMO.artwork = artwork
-                artworkMO.last_seen = Date()
-                print(artworkMO)
-                try moc.save()
-            }
+            var artworkMO:ArtworkMO!
             
+            if let existingArtwork = fetchedArtwork.first {
+                artworkMO = existingArtwork
+            }else{
+                artworkMO = (NSEntityDescription.insertNewObject(forEntityName: "Artwork", into: persistenceController.container.viewContext) as! ArtworkMO)
+            }
+            artworkMO.artwork = artwork
+            artworkMO.last_seen = Date()
+            self.lastArtwork = artworkMO.artwork
+            try moc.save()
         } catch {
             fatalError("Failed to fetch employees: \(error)")
         }
+    }
+    
+    func save(artist:Artist){
+        let persistenceController = PersistenceController.shared
+        let moc  = persistenceController.container.viewContext
+
+        let artistFetch: NSFetchRequest<NSFetchRequestResult> = ArtistMO.fetchRequest()
+        let id = Int32(truncating: artist.id as NSNumber? ?? 0 )
+        artistFetch.predicate = NSPredicate(format: "id == %i",id)
+        do {
+            let fetchedArtists = try moc.fetch(artistFetch) as! [ArtistMO]
+            var artistMO:ArtistMO!
+            
+            if let existingArtist = fetchedArtists.first {
+                artistMO = existingArtist
+            }else{
+                artistMO = (NSEntityDescription.insertNewObject(forEntityName: "Artist", into: persistenceController.container.viewContext) as! ArtistMO)
+            }
+            artistMO.artist = artist
+            try moc.save()
+            print("artist stored")
+        } catch {
+            fatalError("Failed to fetch employees: \(error)")
+        }
+
+    }
+    
+    
+    func get(artist: Int) ->Artist{
+        
+        
+        return Artist(id: nil, title: nil, birth_date: nil, death_date: nil, description: nil)
     }
     
     

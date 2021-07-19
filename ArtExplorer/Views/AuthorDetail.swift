@@ -17,10 +17,18 @@ struct AuthorDetail: View {
                     .font(.largeTitle)
                     .fontWeight(.black)
                     .foregroundColor(.primary)
-                
-                Text("\(artist.birth_date ?? 0) -  \(artist.death_date ?? 0)")
-                    .font(.headline)
-                    .foregroundColor(.secondary)
+                if  let birthDate = artist.birth_date {
+                    let deathDate = (artist.death_date ?? 0)
+                    Text("\(birthDate) - \(deathDate == 0 ? "Present" : "\(deathDate)")")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                    
+                }else{
+                    Text("Date Unknown ")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+                }
+
                 if let description = artist.description {
                    HTMLView(string: description)
                     
